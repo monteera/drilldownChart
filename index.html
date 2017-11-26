@@ -1,0 +1,296 @@
+<html>
+ <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ChartJs</title>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <!-- <script type="text/javascript" src="./javascript.js"></script> -->
+ </head>
+<!-- <canvas id="myChart" width="400" height="200"></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.js"></script> -->
+
+ <body>
+ 
+  <h1 style="text-align:center;color: red;font-family:TH Sarabun New;" > Number of withdraw student </h1>
+  <button onclick="myFunction()">Black</button>
+<!-- <script>
+function myFunction() {
+    location.reload();
+}
+</script> -->
+
+  <!-- Need to showe chart tag Canvas -->  
+  <canvas id="myChart" width="800" height="400"></canvas>
+  <!--Call File Chart.js-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+
+  <script type='text/javascript' language='javascript'>
+    //Defined value
+    var data1;
+    var data2;
+    var data3;
+    //Prepare file for runing page (file e.g. .html,.css etc.)
+    $(document).ready(function(){
+
+    //Request data for Sever by funtion Ajax 
+    $.ajax({
+
+           type:"GET", //type of sent to server e.g. GET,POST etc.
+           url:"db.php", //URL to which the request is sent to file.
+           dataType:"json",//dataType is type get dat in formate json
+
+   //success is callback.It will working when server response 
+   ///function(data):data is the names of the parameters to refer.It to the response data that is passed to that function when it is invoked
+    success: function(data){
+              //Show data in console
+             console.log(data);
+                  data1 = data;
+
+              //Call class of Chart.js   
+              var ctx = document.getElementById("myChart");               
+              //creat Chart
+              var myChart = new Chart(ctx,{
+                  type: 'bar', //type of charrt
+                  //data is Variable:Value for us creat chart
+                  data:{
+                      labels:data.labels,//labels is definde data in line item(X axis)
+                      
+                      //datasets is sets of data in Array format
+                      datasets:[{
+        //The label for the dataset which appears in the legend and tooltips.
+                        label:'Gender',
+        // data is definde data in line item(y axis)
+                        data:data.data,
+        //The fill(เติม) color of the bar
+                        backgroundColor:data.backgroundColor,
+        ///The color of the bar border
+                        borderColor:data.borderColor,
+        //The stroke width of the bar in pixels.(ความกว้างแถบของbar) 
+                        borderWidth:1                        
+                      }]
+                  },
+                  options:{
+                     // events: ['click'],//events of mouse
+                     tooltips: {
+                      mode: 'index', //mode is Sets which elements appear in the tooltip.
+                      },
+                      scales:{ //Scale for chart
+                        yAxes:[{
+                          // display:false,definde show scales y axes display
+                          scaleLabel:{
+                            display:true, 
+                            labelString:'Number Student' //show name data of y axes 
+
+                          },title: {
+                                      display: true,
+                                      text: 'Number of withdraw student'
+                                    //show title of chart
+                          },
+                          ticks:{
+                            beginAtZero:true //Define value of y axes begin at Zero  if don't define begin value of y axes bar chart will show follwe get data
+                          }
+                        }],
+                        xAxes:[{
+                          // display:false,definde show scales x axes display
+                          display:true,
+                          scaleLabel:{
+                            display:true,
+                            labelString:'Gender'
+                            //show name data of x axes 
+                          }
+                          
+                        }]
+                      
+                  }
+                }
+             });
+                  ctx.onclick = function(event){
+                    data2=data;
+                    var activePoints = myChart.getElementsAtEvent(event);
+                    if (activePoints[0]){
+                    var chartData = activePoints[0]['_chart'].config.data;
+                    var idx = activePoints[0]['_index'];
+                    var label = chartData.labels[idx];
+                    var value = chartData.datasets[0].data[idx];
+                    console.log(label); 
+                    console.log(value);
+                    console.log(chartData.datasets);
+
+                    console.log(data1.sex_code[idx]);
+//.datasets.data[idx]
+                    alert('เพศ:'+label+'='+value+'คน');
+                    
+                   
+                          $.ajax({
+
+                             type:"POST",
+                             url:"db3.php",
+                             dataType:"json",
+                             data: {
+                              sex_code:data2.sex_code[idx]
+                              
+                             },
+
+                             success: function(data){
+                              // alert("dataPoint{x:"+label+",y:"+value+"}");
+                              data2=data;
+                              var ctx = document.getElementById("myChart");
+                              window.myBar=new Chart(ctx,{
+
+                                type:'bar',
+                                
+                                data:{
+                                        labels:data.labels,
+                                                            // fill:false,
+
+                                                           datasets:[{
+                                                            label:'Departmeant',
+                                                            data:data.data,
+                                                            // backgroundColor:"non",
+                                                            borderColor:"#cc0066",
+                                                            
+                                                            borderWidth:1
+                                                          }
+                                                          ]
+                                    },
+                                options:{
+                                  events: ['click'],
+                                  responsive:true,
+                                  title: {
+                                      display: true,
+                                      text:data.text[1]
+                                  }
+
+                                },scales:{
+                                  yAxes:[{
+                                    
+                                    display:true,
+                                    scaleLabel:{
+                                    display:true,
+                                    labelString:'Number Student'
+                                  }
+                                  }],
+                                  xAxes:[{
+                                            
+                                            display:true,
+                                            scaleLabel:{
+                                              display:true,
+                                              labelString:'Departmeant name'
+
+                                            }
+                                          }]
+                                }
+                              });ctx.onclick = function(event){
+                                var data3=data;
+                    var activePoints = myBar.getElementsAtEvent(event);
+                    if (activePoints[0]) {
+                    var chartData = activePoints[0]['_chart'].config.data;
+                    var idx = activePoints[0]['_index'];
+                    var label = chartData.labels[idx];
+                    var value = chartData.datasets[0].data[idx];
+                    console.log(label); 
+                    console.log(value);
+                    console.log(chartData.datasets);
+
+                    console.log(data3.dept_id[idx]);
+//.datasets.data[idx]
+                    alert(label+'='+value+'คน');
+                    
+
+                          $.ajax({
+
+                             type:"POST",
+                             url:"db4.php",
+                             dataType:"json",
+                             data: {
+
+                              dept_id:data3.dept_id[idx]
+                              
+                             },
+
+                             success: function(data){
+                              // alert("dataPoint{x:"+label+",y:"+value+"}");
+                              
+                              var ctx = document.getElementById("myChart");
+                              window.myBar=new Chart(ctx,{
+
+                                type:'bar',
+                                
+                                data:{
+                                        labels:data.labels,
+                                                            // fill:false,
+
+                                                           datasets:[{
+                                                            label:'Education Term',
+                                                            data:data.data,
+                                                            // backgroundColor:"non",
+                                                            borderColor:"#cc0066",
+                                                            
+                                                            borderWidth:1
+                                                          }
+                                                          ]
+                                    },
+                                options:{
+                                  events: ['click'],
+                                  responsive:true,
+                                  title: {
+                                      display: true,
+                                      text:data.text[1]
+                                  }
+
+                                },scales:{
+                                  yAxes:[{
+                                    // type:"linear",
+                                    // display:"left",
+                                    // // id:"y-axis"
+                                    display:true,
+                                    scaleLabel:{
+                                    display:true,
+                                    labelString:'Number Student'
+                                  }
+                                  }],
+                                  xAxes:[{
+                                            // display:true,
+                                            // scaleLabel:{
+                                            //   display:true,
+                                            //   labelString:'Education Year'
+                                            display:true,
+                                            scaleLabel:{
+                                              display:true,
+                                              labelString:'Departmeant name'
+
+                                            },
+                                            ticks:{
+                                              
+                                              maxRotation:80
+                                            }
+                                          }]
+                                }
+                              });
+
+                              }
+                                
+                          });
+              
+                  };
+
+                };
+
+                              }
+                                
+                          });
+                   
+
+                  };
+
+                };
+                }
+              });
+            });
+
+</script>
+  
+</body>
+
+</html>
